@@ -1,0 +1,14 @@
+import { pool } from './db/db';
+
+async function test() {
+  try {
+    const res = await pool.query('SELECT NOW()');
+    console.log('Connected:', res.rows[0]);
+    process.exit(0);
+  } catch (err) {
+    console.error('Connection failed:', err);
+    process.exit(1);
+  }
+}
+
+test();
