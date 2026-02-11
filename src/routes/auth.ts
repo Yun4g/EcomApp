@@ -31,7 +31,7 @@ route.post('/api/signUp', async (req, res) => {
       'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
       [name, email, password]
     );
-   return res.json({message: 'User created successfully', user: newUser.rows[0] });
+   return res.json({message: 'User created successfully', user: newUser });
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ 
