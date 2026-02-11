@@ -7,7 +7,7 @@ import { pool } from "../db/db.js";
 const route = Router();
 
 
-route.post('/api/signUp', async (req, res) => {
+route.post('/signUp', async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {

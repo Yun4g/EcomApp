@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
-import { pool } from './db/db.js';
+import signUpRoute from './routes/auth.js';
+
 
 dotenv.config();
 
@@ -19,13 +20,11 @@ server.use(bodyParser.json());
 
 // Routes
 
+server.use('/api', signUpRoute)
+
+
 server.get('/', async (req, res) => {
-    try {
-        const testTime = await pool.query('SELECT NOW()');
-        res.json({ message: 'Welcome to the E-commerce API', serverTime: testTime.rows[0].now });
-    } catch (error) {
-       return res.status(500).json({ error: 'An error occurred while processing the request.' });
-    }
+     return res.send('Welcome to the server');
 });
 
 
