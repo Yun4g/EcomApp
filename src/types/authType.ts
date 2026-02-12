@@ -6,3 +6,7 @@ export interface User {
   password: string;
   created_at: string;
 }
+
+export interface JwtPayload {
+  userId: string;
+}
