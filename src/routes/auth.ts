@@ -74,7 +74,7 @@ route.post('/login', async (req, res) => {
     }
  
     const accessToken = jwt.sign({ userId: ExistingUser.id }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1d' });
-    const RefreshToken = jwt.sign({ userId: ExistingUser.id }, process.env.REFRESH_JWT_SECRET as string, { expiresIn: '1d' });
+    const RefreshToken = jwt.sign({ userId: ExistingUser.id }, process.env.REFRESH_JWT_SECRET as string, { expiresIn: '7d' });
 
 
     res.cookie("Accestoken", accessToken, {
@@ -89,7 +89,7 @@ route.post('/login', async (req, res) => {
        httpOnly: true,
        secure: false,
        sameSite: "none",
-       maxAge: 24 * 60 * 60 * 1000
+       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
 
