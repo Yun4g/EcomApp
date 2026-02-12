@@ -8,6 +8,7 @@ export const AuthMiddleware = (req: any, res: any, next: any) => {
             return res.status(401).json({ error: 'Unauthorized token missing ' });
         }
         try {
+            token
             next();
         } catch (error) {
             return res.status(401).json({ error: 'Unauthorized' });
