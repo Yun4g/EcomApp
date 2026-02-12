@@ -16,10 +16,11 @@ server.use(cors({
   credentials: true
 }));
 
+
+//middleware
 server.use(bodyParser.json());
 
-// Routes
-
+// Routes 
 server.use('/api', signUpRoute)
 
 
