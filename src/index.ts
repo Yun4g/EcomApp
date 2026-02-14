@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
-import signUpRoute from './routes/auth.js';
+import authRoute from './routes/auth.route.js';
 
 
 dotenv.config();
@@ -21,7 +21,7 @@ server.use(cors({
 server.use(bodyParser.json());
 
 // Routes 
-server.use('/api', signUpRoute)
+server.use('/api', authRoute)
 
 
 server.get('/', async (req, res) => {

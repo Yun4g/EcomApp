@@ -10,3 +10,17 @@ export interface User {
 export interface JwtPayload {
   userId: string;
 }
+
+
+export interface signUpServiceType {
+    name: string;
+    email: string;
+    password: string;
+}
+
+export interface LoginServiceType {
+    name: string;
+    email: string;
+    password: string;
+}
+

@@ -7,49 +7,14 @@ import jwt from "jsonwebtoken";
 import { JwtPayload, User } from "../types/authType.js";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail.js';
 import SendEmail from '../lib/sendEmail.js';
+import { signupController } from '../modules/auth/auth.controller.js';
 
 
 
 const route = Router();
 
 
-route.post('/signUp', async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({
-      error: 'Name, email, and password are required.'
-    });
-  }
-
-  try {
-    const existingUser = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
-    )
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({
-        error: ' user with this email already exists.'
-      });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await pool.query(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
-      [name, email, hashedPassword]
-    );
-
-    const { password: _, ...User } = newUser.rows[0]
-
-
-    return res.json({ message: 'User created successfully', User });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({
-      error: 'An error occurred while creating the user.'
-    });
-  }
-});
+route.post('/signUp', signupController);
 
 
 
@@ -196,7 +161,9 @@ route.post('/refresh-token', async (req, res) => {
 
 // hydration Endpoint
 
-
+route.get('/me', async (req, res) => {
+       
+})
 
 
 
@@ -204,3 +171,16 @@ route.post('/refresh-token', async (req, res) => {
 
 
 export default route;   
+
+
+
+
+// [7:59 PM, 2/12/2026] Sir Golden (Supervisor): I see that you implement handlers on your routes. Would nearer if your separate the handlers as controllers
+// [7:59 PM, 2/12/2026] Sir Golden (Supervisor): Also, you have your queries in your handlers
+// [8:00 PM, 2/12/2026] Sir Golden (Supervisor): Imagine you want to switch to MySQL or another db. It will require you to make a lot of edits.
+// [8:00 PM, 2/12/2026] Sir Golden (Supervisor): You can create a repository for your db queries and then use them across your code base.
+// [8:08 PM, 2/12/2026] Sir Golden (Supervisor): Extract the handlers from the route to be controllers.
+
+// The controller should only handle validation and whitelisting. It should call a service.
+
+// Extract core logic to a service.  please explain what he means and how i can implement this
