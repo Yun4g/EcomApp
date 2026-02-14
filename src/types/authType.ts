@@ -19,8 +19,6 @@ export interface signUpServiceType {
 }
 
 export interface LoginServiceType {
-    name: string;
     email: string;
     password: string;
 }
-

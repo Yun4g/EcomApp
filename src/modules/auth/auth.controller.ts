@@ -1,6 +1,7 @@
+import  jwt  from 'jsonwebtoken';
 import type { Request, Response } from "express";
 import { checkExistingUserRepo } from "./auth.repository";
-import { signUpService } from "./auth.service";
+import { loginService, signUpService } from "./auth.service";
 
 
 export const signupController = async (req: Request, res: Response) => {
@@ -38,7 +39,26 @@ export const loginController = async (req: Request, res: Response) => {
 
 
   try {
+    const User = await loginService({ email, password });
 
+    const accessToken = jwt.sign({ userId:  User.id }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1d' });
+    const RefreshToken = jwt.sign({ userId:  User.id }, process.env.REFRESH_JWT_SECRET as string, { expiresIn: '7d' });
+
+    res.cookie('accessToken', accessToken,{
+      httpOnly: true,
+      secure: false,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie('refreshToken', RefreshToken,{
+      httpOnly: true,
+      secure: false,
+      sameSite: 'none',
+       maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    return res.json({ message: "Login successful", User });
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(401).json({ error: error.message });

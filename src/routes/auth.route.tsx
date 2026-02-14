@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { JwtPayload, User } from "../types/authType.js";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail.js';
 import SendEmail from '../lib/sendEmail.js';
-import { signupController } from '../modules/auth/auth.controller.js';
+import { loginController, signupController } from '../modules/auth/auth.controller.js';
 
 
 
@@ -18,54 +18,7 @@ route.post('/signUp', signupController);
 
 
 
-route.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    if (!email || !password) {
-      return res.status(400).send('Email and password are required');
-    }
-    const User = await pool.query<User>("SELECT * FROM users WHERE email = $1", [email]);
-    const ExistingUser = User.rows[0];
-
-    if (!ExistingUser) {
-      return res.status(400).json({ message: "user with the given email does not exists" })
-    }
-
-    const isValidPassword = await bcrypt.compare(password, ExistingUser.password);
-
-    if (!isValidPassword) {
-      return res.status(400).json({ message: 'Invalid password' });
-    }
-
-    const accessToken = jwt.sign({ userId: ExistingUser.id }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1d' });
-    const RefreshToken = jwt.sign({ userId: ExistingUser.id }, process.env.REFRESH_JWT_SECRET as string, { expiresIn: '7d' });
-
-
-    res.cookie("Accestoken", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000
-    });
-
-
-    res.cookie("RefreshToken", RefreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-
-
-    return res.status(200).json({ message: "user logged in succesfully" })
-
-
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send('Internal Server Error');
-  }
-});
+route.post('/login', loginController);
 
 
 route.post('/forgot-password', async (req, res) => {
