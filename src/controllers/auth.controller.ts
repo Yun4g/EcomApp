@@ -136,7 +136,7 @@ export const ResetPasswordController = async (req: Request, res: Response) => {
 }
 
 
-export const RefreshPasswordController = async (req: Request, res: Response) => {
+export const RefreshTokenController = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
