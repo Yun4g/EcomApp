@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
-import { JwtPayload } from "../types/authType";
+import { Response, NextFunction } from "express";
+import { AuthRequest, JwtPayload } from "../types/authType";
 
 
-export const AuthMiddleware = (req: any, res: any, next: any) => {
-     const token = req.cookies.accesstoken || req.headers['authorization']?.split(' ')[1];
+
+export const AuthMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+     const token = req.cookies.accessToken  || req.headers['authorization']?.split(' ')[1];
 
         if (!token) {
             return res.status(401).json({ error: 'Unauthorized token missing ' });

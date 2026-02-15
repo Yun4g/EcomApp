@@ -1,4 +1,4 @@
-import { User } from './../types/authType';
+import { AuthRequest, User } from './../types/authType';
 
 import jwt from 'jsonwebtoken';
 import type { Request, Response } from "express";
@@ -145,7 +145,7 @@ export const RefreshPasswordController = async (req: Request, res: Response) => 
 
   try {
     const accessToken = await RefreshTokenService(refreshToken);
-    
+
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: false,
@@ -153,6 +153,32 @@ export const RefreshPasswordController = async (req: Request, res: Response) => 
       maxAge: 24 * 60 * 60 * 1000,
     })
     return res.status(200).json({ message: "token generated successfully" })
+  } catch (error) {
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      res.status(500).json({ message: "Internal Server Error" })
+    }
+
+  }
+}
+
+
+export const hydration = async (req: AuthRequest, res: Response) => {
+  const userId = req.userId;
+
+  const user = await findUserById(userId!);
+
+  return res.json({ user });
+};
+
+
+
+export const LogoutController = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     if (error instanceof ApiError) {
       res.status(error.statusCode).json({ error: error.message });

@@ -1,4 +1,4 @@
-
+import { Request } from "express";
 export interface User {
   id: string;       
   name: string;
@@ -21,4 +21,8 @@ export interface signUpServiceType {
 export interface LoginServiceType {
     email: string;
     password: string;
+}
+
+export interface AuthRequest extends Request {
+  userId?: string;
 }

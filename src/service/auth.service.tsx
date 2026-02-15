@@ -77,7 +77,7 @@ export const ResetPasswordService = async (email: string, newPassword: string) =
 
 export const RefreshTokenService = async (refreshToken: string) => {
 
-    const verifyToken =  jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET as string) as  JwtPayload;
+    const verifyToken =  jwt.verify( refreshToken, process.env.REFRESH_JWT_SECRET as string) as  JwtPayload;
     if (!verifyToken) {
         throw new ApiError("Invalid token", 400);
     }
