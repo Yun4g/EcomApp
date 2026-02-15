@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
+
 import authRoute from './routes/auth.route.js';
 
 
@@ -17,8 +17,6 @@ server.use(cors({
 }));
 
 
-//middleware
-server.use(bodyParser.json());
 
 // Routes 
 server.use('/api', authRoute)
