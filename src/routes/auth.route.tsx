@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { JwtPayload, User } from "../types/authType.js";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail.js';
 import SendEmail from '../lib/sendEmail.js';
-import { loginController, signupController } from '../modules/auth/auth.controller.js';
+import { forgotPasswordController, loginController, signupController } from '../controllers/auth.controller.js';
 
 
 
@@ -21,39 +21,7 @@ route.post('/signUp', signupController);
 route.post('/login', loginController);
 
 
-route.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  try {
-    if (!email) {
-      return res.status(400).send('Email is required');
-    }
-
-    const ExistingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-
-    if (ExistingUser.rows.length === 0) {
-      return res.status(400).json({ message: "user with the given email does not exists" })
-    }
-
-    const link = {
-      url: "http://localhost:3000/reset-password",
-      text: "Reset Password"
-    }
-    const html = await render(
-      <SendEmailUi
-        heading="Welcome to Our Service"
-        message="example.com is excited to have you on board. Please verify your email to get started."
-        link={link}
-        footer="If you did not sign up for this account, please ignore this email." />
-    )
-    await SendEmail(email, "Reset Password", html);
-
-    return res.status(200).json({ message: "Password reset email sent" });
-
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send('Internal Server Error');
-  }
-});
+route.post('/forgot-password', forgotPasswordController);
 
 route.post('/reset-password/:token', async (req, res) => {
   const { email, newPassword } = req.body;
