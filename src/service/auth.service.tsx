@@ -1,12 +1,13 @@
-import { signUpServiceType } from '../types/authType';
+import { JwtPayload, signUpServiceType } from '../types/authType';
 import bcrypt from "bcrypt";
-import { checkExistingUserRepo, createUserRepo, UpdateUserPasswordRepo } from "../repository/auth.repository";
+import { checkExistingUserRepo, createUserRepo, findUserById, UpdateUserPasswordRepo } from "../repository/auth.repository";
 export { signUpServiceType } from "../types/authType"
 import { LoginServiceType } from "../types/authType";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail';
 import SendEmail from '../lib/sendEmail';
 import { render } from '@react-email/components';
 import { ApiError } from '../utils/error';
+import jwt from 'jsonwebtoken';
 
 
 
@@ -70,6 +71,24 @@ export const ResetPasswordService = async (email: string, newPassword: string) =
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     const ResetPassword = await UpdateUserPasswordRepo(email, hashedPassword)
-     
+
     return ResetPassword;
 }
+
+export const RefreshTokenService = async (refreshToken: string) => {
+
+    const verifyToken =  jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET as string) as  JwtPayload;
+    if (!verifyToken) {
+        throw new ApiError("Invalid token", 400);
+    }
+    const userId = verifyToken.userId;
+    const User = await findUserById(userId);
+    if (!User) {
+        throw new ApiError("User not found", 404);
+    }
+    
+    const accessToken = jwt.sign({ userId }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1d' })
+    return accessToken;
+    
+}
+

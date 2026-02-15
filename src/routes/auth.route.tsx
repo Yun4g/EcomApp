@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { JwtPayload, User } from "../types/authType.js";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail.js';
 import SendEmail from '../lib/sendEmail.js';
-import { forgotPasswordController, loginController, signupController } from '../controllers/auth.controller.js';
+import { forgotPasswordController, loginController, ResetPasswordController, signupController } from '../controllers/auth.controller.js';
 
 
 
@@ -23,36 +23,7 @@ route.post('/login', loginController);
 
 route.post('/forgot-password', forgotPasswordController);
 
-route.post('/reset-password/:token', async (req, res) => {
-  const { email, newPassword } = req.body;
-  const { token } = req.params;
-
-  try {
-
-    if (!email || !newPassword) {
-      return res.status(400).send('Email and new password is required');
-    }
-
-    if (token) {
-      return res.status(400).send('token is required');
-    }
-
-    const ExistingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-
-    if (ExistingUser.rows.length > 0) {
-      return res.status(400).json({ message: "user with the given email does not exists" })
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await pool.query("UPDATE users SET password = $1 WHERE email = $2", [hashedPassword, email]);
-    return res.status(200).json({ message: "Password reset successfully" });
-
-  } catch(error) {
-      return res.status(500).send('Internal Server Error');
-  }
-
-})
+route.post('/reset-password/:token', ResetPasswordController);
 
 
 // refresh Token 

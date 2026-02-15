@@ -1,8 +1,11 @@
+import { User } from './../types/authType';
+
 import jwt from 'jsonwebtoken';
 import type { Request, Response } from "express";
-import { forgotPasswordService, loginService, ResetPasswordService, signUpService } from "../service/auth.service";
+import { forgotPasswordService, loginService, RefreshTokenService, ResetPasswordService, signUpService } from "../service/auth.service";
 import { ApiError } from '../utils/error';
-import { checkExistingUserRepo } from '../repository/auth.repository';
+import { checkExistingUserRepo, findUserById } from '../repository/auth.repository';
+import { JwtPayload } from '../types/authType';
 
 
 export const signupController = async (req: Request, res: Response) => {
@@ -81,7 +84,7 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
   const existingUser = await checkExistingUserRepo(email);
 
   if (!existingUser) {
-     return res.status(400).json({ message: "User does not exist" });
+    return res.status(400).json({ message: "User does not exist" });
   }
 
   try {
@@ -119,8 +122,9 @@ export const ResetPasswordController = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid token or expired token" })
     }
 
-   const User = await ResetPasswordService(email, newPassword);
-    return res.json({ message: 'Password reset successfully', user: User });
+    const User = await ResetPasswordService(email, newPassword);
+    return res.status(200).json({ message: "Password reset successfully", user: User });
+
   } catch (error) {
     if (error instanceof ApiError) {
       res.status(error.statusCode).json({ error: error.message });
@@ -129,4 +133,32 @@ export const ResetPasswordController = async (req: Request, res: Response) => {
     }
   }
 
+}
+
+
+export const RefreshPasswordController = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).send('Refresh token is required');
+  }
+
+  try {
+    const accessToken = await RefreshTokenService(refreshToken);
+    
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+    return res.status(200).json({ message: "token generated successfully" })
+  } catch (error) {
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      res.status(500).json({ message: "Internal Server Error" })
+    }
+
+  }
 }

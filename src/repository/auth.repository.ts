@@ -5,13 +5,21 @@ export const checkExistingUserRepo = async (email: string) => {
 
         try {
             const  ExistingUserRepo = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-            
             return ExistingUserRepo.rows[0];
         } catch (error) {
             console.log(error);
         }
 }
 
+export const findUserById = async (id: string) => {
+
+        try {
+            const  ExistingUserRepo = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+            return ExistingUserRepo.rows[0];
+        } catch (error) {
+            console.log(error);
+        }
+}
 
 export const createUserRepo = async (name: string, email: string, password: string) => {
       try {
