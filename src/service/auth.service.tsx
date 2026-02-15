@@ -1,6 +1,6 @@
 import { signUpServiceType } from '../types/authType';
 import bcrypt from "bcrypt";
-import { checkExistingUserRepo, createUserRepo } from "../repository/auth.repository";
+import { checkExistingUserRepo, createUserRepo, UpdateUserPasswordRepo } from "../repository/auth.repository";
 export { signUpServiceType } from "../types/authType"
 import { LoginServiceType } from "../types/authType";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail';
@@ -40,8 +40,6 @@ export const loginService = async ({ email, password }: LoginServiceType) => {
         throw new ApiError("Invalid email or password", 400);
     }
 
-
-
     return existingUser;
 
 
@@ -49,11 +47,7 @@ export const loginService = async ({ email, password }: LoginServiceType) => {
 
 
 export const forgotPasswordService = async (email: string) => {
-    const existingUser = await checkExistingUserRepo(email);
 
-    if (!existingUser) {
-        throw new ApiError("User with the given email does  not exists", 400);
-    }
 
     const link = {
         url: "http://localhost:3000/reset-password",
@@ -68,4 +62,14 @@ export const forgotPasswordService = async (email: string) => {
     )
     const sendEmail = await SendEmail(email, "Reset Password", html);
     return sendEmail;
+}
+
+
+export const ResetPasswordService = async (email: string, newPassword: string) => {
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const ResetPassword = await UpdateUserPasswordRepo(email, hashedPassword)
+     
+    return ResetPassword;
 }

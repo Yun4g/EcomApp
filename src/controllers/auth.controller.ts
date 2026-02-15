@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import type { Request, Response } from "express";
-import { forgotPasswordService, loginService, signUpService } from "../service/auth.service";
+import { forgotPasswordService, loginService, ResetPasswordService, signUpService } from "../service/auth.service";
 import { ApiError } from '../utils/error';
+import { checkExistingUserRepo } from '../repository/auth.repository';
 
 
 export const signupController = async (req: Request, res: Response) => {
@@ -77,6 +78,11 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "email is required" });
   }
 
+  const existingUser = await checkExistingUserRepo(email);
+
+  if (!existingUser) {
+     return res.status(400).json({ message: "User does not exist" });
+  }
 
   try {
     await forgotPasswordService(email);
@@ -98,23 +104,29 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
 export const ResetPasswordController = async (req: Request, res: Response) => {
   const { email, newPassword } = req.body;
   const { token } = req.params;
-  
-     if (!email || !newPassword) {
-      return res.status(400).send('Email and new password is required');
+
+  if (!email || !newPassword) {
+    return res.status(400).send('Email and new password is required');
+  }
+
+  if (token) {
+    return res.status(400).send('token is required');
+  }
+
+  try {
+    const verifyToken = jwt.verify(token, process.env.ACCESS_JWT_SECRET as string);
+    if (verifyToken) {
+      return res.status(400).json({ message: "Invalid token or expired token" })
     }
 
-    if (token) {
-      return res.status(400).send('token is required');
-    } 
-
-    try {
-      
-    } catch (error) {
-      if (error instanceof ApiError) {
-         res.status(error.statusCode).json({ error: error.message });
-      } else {
-        res.status(500).json({message: "Internal Server Error"}) 
-      }
+   const User = await ResetPasswordService(email, newPassword);
+    return res.json({ message: 'Password reset successfully', user: User });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      res.status(500).json({ message: "Internal Server Error" })
     }
-   
+  }
+
 }

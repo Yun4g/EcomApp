@@ -22,3 +22,12 @@ export const createUserRepo = async (name: string, email: string, password: stri
         
       }
 }
+
+export const UpdateUserPasswordRepo = async (email: string, newPassword: string) => {
+     try {
+         const UpdateUserPassword = await pool.query("UPDATE users SET password = $1 WHERE email = $2 RETURNING *", [newPassword, email])
+         return UpdateUserPassword.rows[0];
+     } catch (error) {
+        console.log(error);
+     }
+}
