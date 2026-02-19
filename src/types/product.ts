@@ -1,5 +1,8 @@
 
 
+ type Rate = {
+    rate: number;
+}
 
 export interface ProductType {
    title: string;
@@ -7,6 +10,6 @@ export interface ProductType {
     image: string;
     category: string;
     price: string;
-    rating: string;
+    rating: Rate;
 
 }

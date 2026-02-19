@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import authRoute from './routes/auth.route.js';
+import ProductRoute from './routes/product.route.js'
+import { fetchProduct } from './utils/product.js';
 
 
 dotenv.config();
@@ -17,9 +19,12 @@ server.use(cors({
 }));
 
 
+fetchProduct();
+
 
 // Routes 
 server.use('/api', authRoute)
+server.use('/api', ProductRoute)
 
 
 server.get('/', async (req, res) => {
@@ -31,4 +36,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

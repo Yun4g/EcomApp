@@ -1,7 +1,7 @@
 import { JwtPayload, signUpServiceType } from '../types/authType';
 import bcrypt from "bcrypt";
 import { checkExistingUserRepo, createUserRepo, findUserById, UpdateUserPasswordRepo } from "../repository/auth.repository";
-export { signUpServiceType } from "../types/authType"
+
 import { LoginServiceType } from "../types/authType";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail';
 import SendEmail from '../lib/sendEmail';
