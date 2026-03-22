@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 
 import authRoute from './routes/auth.route.js';
 import ProductRoute from './routes/product.route.js'
+import orderRoute from "./routes/order.route.js"
 import { fetchProduct } from './utils/product.js';
 
 
@@ -25,6 +26,7 @@ fetchProduct();
 // Routes 
 server.use('/api', authRoute)
 server.use('/api', ProductRoute)
+server.use('/api/orders', orderRoute)
 
 
 server.get('/', async (req, res) => {
