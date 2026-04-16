@@ -1,92 +1,175 @@
-route.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+Great question — this is exactly how real-world backends protect routes 🔐
+I’ll show you a clean, production-style RBAC (Role-Based Access Control) setup using Node.js + Express + TypeScript.
+
+🧠 Concept (Simple)
+
+You want to:
+
+Authenticate user (who are you?) → via JWT
+Authorize user (are you allowed?) → via roles/permissions
+
+That error:
+
+{"status":"fail","message":"You do not have permission to perform this action."}
+
+comes from the authorization layer.
+
+🏗️ Folder Structure (recommended)
+src/
+ ├── middleware/
+ │     ├── auth.middleware.ts
+ │     └── role.middleware.ts
+ ├── types/
+ │     └── express.d.ts
+ ├── routes/
+ ├── controllers/
+ └── utils/
+1️⃣ Define Roles (TypeScript way)
+// types/roles.ts
+export enum Role {
+  APPLICANT = "APPLICANT",
+  ADMIN = "ADMIN",
+  STAFF = "STAFF",
+}
+2️⃣ Extend Express Request (VERY IMPORTANT)
+// types/express.d.ts
+import { Role } from "./roles";
+
+declare global {
+  namespace Express {
+    interface UserPayload {
+      id: string;
+      role: Role;
+    }
+
+    interface Request {
+      user?: UserPayload;
+    }
+  }
+}
+3️⃣ Authentication Middleware (JWT)
+
+This checks if the user is logged in.
+
+// middleware/auth.middleware.ts
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+
+export const protect = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Not authorized, no token",
+    });
+  }
 
   try {
-    if (!email || !password) {
-      return res.status(400).send('Email and password are required');
-    }
-    const User = await pool.query<User>("SELECT * FROM users WHERE email = $1", [email]);
-    const ExistingUser = User.rows[0];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
-    if (!ExistingUser) {
-      return res.status(400).json({ message: "user with the given email does not exists" })
-    }
+    req.user = {
+      id: decoded.id,
+      role: decoded.role,
+    };
 
-    const isValidPassword = await bcrypt.compare(password, ExistingUser.password);
-
-    if (!isValidPassword) {
-      return res.status(400).json({ message: 'Invalid password' });
-    }
-
-    const accessToken = jwt.sign({ userId: ExistingUser.id }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1d' });
-    const RefreshToken = jwt.sign({ userId: ExistingUser.id }, process.env.REFRESH_JWT_SECRET as string, { expiresIn: '7d' });
-
-
-    res.cookie("Accestoken", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Invalid token",
     });
-
-
-    res.cookie("RefreshToken", RefreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-
-
-    return res.status(200).json({ message: "user logged in succesfully" })
-
-
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send('Internal Server Error');
   }
+};
+4️⃣ Role-Based Authorization Middleware 🔥
+
+This is where your error message comes from.
+
+// middleware/role.middleware.ts
+import { Request, Response, NextFunction } from "express";
+import { Role } from "../types/roles";
+
+export const restrictTo = (...allowedRoles: Role[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Not authenticated",
+      });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        status: "fail",
+        message: "You do not have permission to perform this action.",
+      });
+    }
+
+    next();
+  };
+};
+5️⃣ Use It in Routes 🚀
+import express from "express";
+import { protect } from "../middleware/auth.middleware";
+import { restrictTo } from "../middleware/role.middleware";
+import { Role } from "../types/roles";
+
+const router = express.Router();
+
+// Only ADMIN can access
+router.get(
+  "/admin-dashboard",
+  protect,
+  restrictTo(Role.ADMIN),
+  (req, res) => {
+    res.json({ message: "Welcome Admin!" });
+  }
+);
+
+// ADMIN + STAFF
+router.post(
+  "/create-post",
+  protect,
+  restrictTo(Role.ADMIN, Role.STAFF),
+  (req, res) => {
+    res.json({ message: "Post created" });
+  }
+);
+
+// All authenticated users
+router.get("/profile", protect, (req, res) => {
+  res.json({ user: req.user });
 });
 
+export default router;
+⚡ Example Flow
+User logs in → gets JWT:
+{
+  "id": "123",
+  "role": "APPLICANT"
+}
+User hits:
+GET /admin-dashboard
+Middleware checks:
+✅ Logged in → OK
+❌ Role not ADMIN → returns:
+{
+  "status": "fail",
+  "message": "You do not have permission to perform this action."
+}
+💡 Pro Tips (Real-world)
+Store roles in DB (like your user object)
+Add permissions later (e.g. canCreateUser)
+Use constants/enums — never hardcode strings
+Keep middleware reusable (like we did)
+🔥 Bonus (Advanced idea)
 
+Instead of roles, you can do:
 
-for the login Route calls the controller the controller gets
- const { email, password } = req.body;
+restrictTo("CREATE_USER", "DELETE_USER")
 
-
-     if (!email || !password) {
-       return res.status(400).send('Email and password are required');
-     }
-
-     then repo queryies this      const User = await pool.query<User>("SELECT * FROM users WHERE email = $1", [email]);
-     the controller validates this  
-        if (!ExistingUser) {
-      return res.status(400).json({ message: "user with the given email does not exists" })
-    }
-
-    const isValidPassword = await bcrypt.compare(password, ExistingUser.password);
- if (!isValidPassword) {
-      return res.status(400).json({ message: 'Invalid password' });
-    }
-
-
-then the services handles   const accessToken = jwt.sign({ userId: ExistingUser.id }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1d' });
-    const RefreshToken = jwt.sign({ userId: ExistingUser.id }, process.env.REFRESH_JWT_SECRET as string, { expiresIn: '7d' });
-
-
-    res.cookie("Accestoken", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000
-    });
-
-
-    res.cookie("RefreshToken", RefreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-
-    
-    return res.status(200).json({ message: "user logged in succesfully" })
+That’s permission-based access control (PBAC) — more flexible.

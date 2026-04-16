@@ -1,6 +1,9 @@
 
 import { Router } from "express";
-import { forgotPasswordController, hydration, loginController,  RefreshTokenController,  ResetPasswordController, signupController } from '../controllers/auth.controller.js';
+import { forgotPasswordController, GoogleController, hydration, loginController,  RefreshTokenController,  ResetPasswordController, signupController } from '../controllers/auth.controller.js';
+import passport from "passport";
+import jwt from 'jsonwebtoken';
+import { User } from "../types/authType.js";
 
 
 
@@ -29,6 +32,16 @@ route.post('/refresh-token', RefreshTokenController);
 route.get('/me', hydration)
 
 
+
+route.get('/google', 
+    passport.authenticate('google', { scope: ['email', 'profile'] })
+);
+
+
+route.get('/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    GoogleController
+)
 
 
 

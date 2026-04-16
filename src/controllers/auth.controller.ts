@@ -5,7 +5,7 @@ import type { Request, Response } from "express";
 import { forgotPasswordService, loginService, RefreshTokenService, ResetPasswordService, signUpService } from "../service/auth.service";
 import { ApiError } from '../utils/error';
 import { checkExistingUserRepo, findUserById } from '../repository/auth.repository';
-import { JwtPayload } from '../types/authType';
+
 
 
 export const signupController = async (req: Request, res: Response) => {
@@ -51,14 +51,14 @@ export const loginController = async (req: Request, res: Response) => {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'none',
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.cookie('refreshToken', RefreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'none',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -172,6 +172,40 @@ export const hydration = async (req: AuthRequest, res: Response) => {
   return res.json({ user });
 };
 
+
+export const GoogleController = async (req: Request, res: Response) => {
+  const user = req.user as User
+  if(!user) {
+    return res.status(400).json({ message: "User not found" });
+  }
+
+  try {
+          const accessToken = jwt.sign({userId: user.id}, process.env.ACCESS_JWT_SECRET as string, {expiresIn: '1d'})
+          const refreshToken = jwt.sign({userId: user.id}, process.env.REFRESH_JWT_SECRET as string, {expiresIn: '7d'})
+        res.cookie('accessToken', accessToken, {
+           httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          maxAge: 24 * 60 * 60 * 1000,
+
+        });
+          res.cookie('refreshToken', refreshToken, {
+           httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          maxAge: 24 * 60 * 60 * 1000,
+        });
+        res.redirect("http://localhost:3000/dashboard")
+  } catch (error) {
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      res.status(500).json({ message: "Internal Server Error" })
+    }
+  }
+
+
+}
 
 
 export const LogoutController = async (req: Request, res: Response) => {

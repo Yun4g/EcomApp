@@ -1,6 +1,6 @@
 import { JwtPayload, signUpServiceType } from '../types/authType';
 import bcrypt from "bcrypt";
-import { checkExistingUserRepo, createUserRepo, findUserById, UpdateUserPasswordRepo } from "../repository/auth.repository";
+import { checkExistingUserRepo, checkGoogleExistingUserRepo, createUserRepo, findUserById, UpdateUserPasswordRepo } from "../repository/auth.repository";
 
 import { LoginServiceType } from "../types/authType";
 import SendEmailUi from '../utils/react-email-starter/emails/SendEmail';
@@ -10,7 +10,13 @@ import { ApiError } from '../utils/error';
 import jwt from 'jsonwebtoken';
 
 
-
+export const GoogleService =  async (email: string, googleId: string) => {
+        const existingUser = await checkGoogleExistingUserRepo(email, googleId);
+        if (existingUser) {
+            return existingUser;
+        }
+    
+}
 
 export const signUpService = async ({ name, email, password }: signUpServiceType) => {
 

@@ -1,4 +1,4 @@
-import { pool } from "../db"; 
+import { pool } from "../db";
 
 
 
@@ -8,7 +8,8 @@ async function migrate() {
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL,
+      password TEXT ,
+      ProfilePicture TEXT,
       created_at TIMESTAMP DEFAULT now()
     );
 
@@ -56,9 +57,33 @@ async function migrate() {
       name TEXT NOT NULL UNIQUE,
       created_at TIMESTAMP DEFAULT now()
     );
+
+
   `;
 
+
   await pool.query(sql);
+
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS google_id TEXT,
+    ADD COLUMN IF NOT EXISTS ProfilePicture TEXT;
+  `);
+
+
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'users_googleId_unique'
+      ) THEN
+        ALTER TABLE users
+        ADD CONSTRAINT users_google_id_unique UNIQUE (google_id);
+      END IF;
+    END
+    $$;
+  `);
   console.log(" Tables created successfully");
   process.exit(0);
 }
