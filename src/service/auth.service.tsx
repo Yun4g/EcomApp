@@ -59,7 +59,7 @@ export const loginService = async ({ email, password }: LoginServiceType) => {
 
 export const forgotPasswordService = async (email: string) => {
 
-    const ResetToken = jwt.sign({ email }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1h' });
+    const ResetToken = jwt.sign({ email }, process.env.EMAIL_JWT_SECRET as string, { expiresIn: '1h' });
 
     const link = {
         url: "http://localhost:3000/reset-password",

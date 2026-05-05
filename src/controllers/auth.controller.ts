@@ -119,7 +119,7 @@ export const ResetPasswordController = async (req: Request, res: Response) => {
   }
 
   try {
-    const verifyToken = jwt.verify(token, process.env.ACCESS_JWT_SECRET as string);
+    const verifyToken = jwt.verify(token, process.env.EMAIL_JWT_SECRET as string);
     if (verifyToken) {
       return res.status(400).json({ message: "Invalid token or expired token" })
     }

@@ -64,6 +64,10 @@ server.get('/', async (req, res) => {
   return res.send('Welcome to the server');
 });
 
+server.get('/reset-password/:id', async (req, res) => {
+  return res.send('Reset password');
+});
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
