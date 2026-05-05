@@ -21,17 +21,16 @@ passport.use(
             const email = profile.emails?.[0]?.value
 
             const checkExistingUser = await checkGoogleExistingUserRepo(email, profile.id)
-            if (checkExistingUser) {
-                return done(null, checkExistingUser.rows[0]);
-            } 
-
+            if (!checkExistingUser) {
+                return done(null, false);
+            }
 
             const CreateNewUser = await GoogleCreateUserRepo(profile.displayName, email, profile.id)
- 
 
-            return done(null, CreateNewUser );
 
-           
+            return done(null, CreateNewUser);
+
+
         }
     )
 );

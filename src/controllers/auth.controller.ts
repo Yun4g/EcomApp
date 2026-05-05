@@ -62,11 +62,12 @@ export const loginController = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    return res.json({ message: "Login successful", User });
+    return res.json({ message: "Login successful", User, refreshToken:RefreshToken });
   } catch (error: unknown) {
     if (error instanceof ApiError) {
       res.status(error.statusCode).json({ error: error.message });
     } else {
+      console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -88,7 +89,8 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
   }
 
   try {
-    await forgotPasswordService(email);
+     const response =  await forgotPasswordService(email);
+     console.log(response);
 
     return res.json({ message: 'Email Reset link sent successfully' });
   } catch (error: unknown) {
@@ -175,27 +177,27 @@ export const hydration = async (req: AuthRequest, res: Response) => {
 
 export const GoogleController = async (req: Request, res: Response) => {
   const user = req.user as User
-  if(!user) {
+  if (!user) {
     return res.status(400).json({ message: "User not found" });
   }
 
   try {
-          const accessToken = jwt.sign({userId: user.id}, process.env.ACCESS_JWT_SECRET as string, {expiresIn: '1d'})
-          const refreshToken = jwt.sign({userId: user.id}, process.env.REFRESH_JWT_SECRET as string, {expiresIn: '7d'})
-        res.cookie('accessToken', accessToken, {
-           httpOnly: true,
-          secure: false,
-          sameSite: 'lax',
-          maxAge: 24 * 60 * 60 * 1000,
+    const accessToken = jwt.sign({ userId: user.id }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1d' })
+    const refreshToken = jwt.sign({ userId: user.id }, process.env.REFRESH_JWT_SECRET as string, { expiresIn: '7d' })
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
 
-        });
-          res.cookie('refreshToken', refreshToken, {
-           httpOnly: true,
-          secure: false,
-          sameSite: 'lax',
-          maxAge: 24 * 60 * 60 * 1000,
-        });
-        res.redirect("http://localhost:3000/dashboard")
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res.redirect("http://localhost:3000/dashboard")
   } catch (error) {
     if (error instanceof ApiError) {
       res.status(error.statusCode).json({ error: error.message });

@@ -37,6 +37,10 @@ export const loginService = async ({ email, password }: LoginServiceType) => {
 
     const existingUser = await checkExistingUserRepo(email);
 
+    if(existingUser.email && existingUser.google_id) {
+        throw new ApiError("Account already exists with google but no Password , Please proceed with Forgot Password", 400);
+    }
+
     if (!existingUser) {
         throw new ApiError("User with the given email does  not exists", 404);
     }
@@ -55,6 +59,7 @@ export const loginService = async ({ email, password }: LoginServiceType) => {
 
 export const forgotPasswordService = async (email: string) => {
 
+    const ResetToken = jwt.sign({ email }, process.env.ACCESS_JWT_SECRET as string, { expiresIn: '1h' });
 
     const link = {
         url: "http://localhost:3000/reset-password",
@@ -65,6 +70,7 @@ export const forgotPasswordService = async (email: string) => {
             heading="Welcome to Our Service"
             message="example.com is excited to have you on board. Please verify your email to get started."
             link={link}
+            token={ResetToken}
             footer="If you did not sign up for this account, please ignore this email." />
     )
     const sendEmail = await SendEmail(email, "Reset Password", html);

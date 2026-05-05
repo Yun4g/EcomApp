@@ -10,6 +10,16 @@ export const checkExistingUserRepo = async (email: string) => {
         }
 }
 
+export const DebugQuery = async () => {
+        try {
+            const  ExistingUserRepo = await pool.query("SELECT * FROM users ");
+            return ExistingUserRepo.rows[0];
+        } catch (error) {
+            console.log(error);
+        }
+}
+
+
 export const checkGoogleExistingUserRepo = async (email: string, googleId: string) => {
         try {
             const  ExistingUserRepo = await pool.query("SELECT * FROM users WHERE email = $1 OR google_id = $2 ", [email, googleId]);

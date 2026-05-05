@@ -9,11 +9,12 @@ interface SendEmailUiProps {
     text: string;
   };
   footer?: string;
+  token: string;
 }
 
 
 
-const SendEmailUi = ({heading, message, link, footer}: SendEmailUiProps)=> {
+const SendEmailUi = ({heading, message, link, footer, token}: SendEmailUiProps & { token: string })=> {
     return (
        <Html>
            <Tailwind>
@@ -24,7 +25,7 @@ const SendEmailUi = ({heading, message, link, footer}: SendEmailUiProps)=> {
             <Text className="mt-4">{message}</Text>
 
             <Button
-              href={link?.url}
+              href={link?.url + `?token=${token}`}
               className="mt-6 bg-blue-600 text-white px-4 py-2 rounded"
             >
               {link?.text}
