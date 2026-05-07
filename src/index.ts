@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-
+import pgSession from 'connect-pg-simple';
+import { pool } from './db/db.js'; 
 import authRoute from './routes/auth.route.js';
 import ProductRoute from './routes/product.route.js'
 import orderRoute from "./routes/order.route.js"
@@ -10,6 +11,7 @@ import passport from 'passport';
 import "./config/passport.js"
 import session from 'express-session'
 import { DebugQuery } from './repository/auth.repository.js';
+import { AuthMiddleware } from './middleware/authMiddleware.js';
 
 
 dotenv.config();
@@ -18,6 +20,7 @@ const server = express();
 
 
 
+server.use('/api/webhook/paystack', express.raw({ type: 'application/json' }));
 
 
 server.use(express.json());
@@ -28,13 +31,27 @@ server.use(cors({
 }));
 
 
+
+
+const PgStore = pgSession(session);
+
 server.use(
   session({
+    store: new PgStore({
+      pool,
+      tableName: 'session',
+      createTableIfMissing: true 
+    }),
     secret: process.env.SESSION_KEY as string,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production' 
+    }
   })
-)
+);
 
 server.use(passport.initialize());
 server.use(passport.session());
@@ -51,9 +68,9 @@ fetchProduct();
 
   existingUser();
 // Routes 
-server.use('/api', authRoute)
-server.use('/api', ProductRoute)
-server.use('/api/orders', orderRoute)
+server.use('/api',  authRoute)
+server.use('/api',  ProductRoute)
+server.use('/api',  orderRoute)
 
 server.use('/dashboard',  async (req, res) => {
   return res.send('Welcome to the Dashboard');

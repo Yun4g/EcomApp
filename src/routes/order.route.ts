@@ -4,7 +4,6 @@ import { paymentWebHook } from "../paymentWebhook/paystackWebHook";
 
 const route = Router();
 
-route.post('/', orderController);
-route.post('/webhook/paystack', express.raw({ type: "application/json" }), paymentWebHook);
-
+route.post('/payments', orderController);
+route.post('/webhook/paystack', paymentWebHook);
 export default route;

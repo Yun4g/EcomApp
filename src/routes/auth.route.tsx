@@ -2,8 +2,7 @@
 import { Router } from "express";
 import { forgotPasswordController, GoogleController, hydration, loginController,  RefreshTokenController,  ResetPasswordController, signupController } from '../controllers/auth.controller.js';
 import passport from "passport";
-import jwt from 'jsonwebtoken';
-import { User } from "../types/authType.js";
+
 
 
 
