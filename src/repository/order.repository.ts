@@ -4,10 +4,9 @@ import { pool } from "../db/db";
 
 
 
-export const getPaymentReference = async () => {
-    const reference = await pool.query('SELECT paymentReference FROM orders');
-    console.log(reference);
-    return reference.rows[0];
+export const getPaymentReference = async (reference: string) => {
+    const result = await pool.query('SELECT paymentReference FROM orders WHERE paymentReference = $1', [reference]);
+    return result.rows[0];
 }
 
 

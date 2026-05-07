@@ -18,8 +18,8 @@ export const paymentWebHook = async (req: Request, res: Response) => {
 
          if (req.body.event ===  "charge.success") {
             // check if the transaction has been successful before
-            const verifyTransaction = await getPaymentReference();
-             if (verifyTransaction && verifyTransaction.paymentreference === req.body.data.reference) {
+            const verifyTransaction = await getPaymentReference(req.body.data.reference);
+             if (verifyTransaction) {
                 return res.status(200).json({ message: "Transaction already processed" });
              }
 
