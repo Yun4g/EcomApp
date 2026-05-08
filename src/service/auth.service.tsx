@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { checkExistingUserRepo, checkGoogleExistingUserRepo, createUserRepo, findUserById, UpdateUserPasswordRepo } from "../repository/auth.repository";
 
 import { LoginServiceType } from "../types/authType";
-import SendEmailUi from '../utils/react-email-starter/emails/SendEmail';
+import SendEmailUi from '../utils/SendEmail';
 import SendEmail from '../lib/sendEmail';
 import { render } from '@react-email/components';
 import { ApiError } from '../utils/error';
