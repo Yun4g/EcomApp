@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from 'cookie-parser'
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pgSession from 'connect-pg-simple';
@@ -27,6 +28,7 @@ server.use('/api/webhook/paystack', express.raw({ type: 'application/json' }));
 
 
 server.use(express.json());
+server.use(cookieParser()) 
 server.use(cors({
   origin: '*',
   methods: ["POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"],
