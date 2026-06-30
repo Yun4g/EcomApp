@@ -12,6 +12,9 @@ import "./config/passport.js"
 import session from 'express-session'
 import { DebugQuery } from './repository/auth.repository.js';
 import { AuthMiddleware } from './middleware/authMiddleware.js';
+import limiter from './middleware/rateLimiter.js';
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './config/swagger'
 
 
 dotenv.config();
@@ -52,7 +55,7 @@ server.use(
     }
   })
 );
-
+server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 server.use(passport.initialize());
 server.use(passport.session());
 
@@ -68,9 +71,9 @@ fetchProduct();
 
   existingUser();
 // Routes 
-server.use('/api',  authRoute)
-server.use('/api',  ProductRoute)
-server.use('/api',  orderRoute)
+server.use('/api', limiter, authRoute)
+server.use('/api', AuthMiddleware, limiter,  ProductRoute)
+server.use('/api', AuthMiddleware, limiter, orderRoute)
 
 server.use('/dashboard',  async (req, res) => {
   return res.send('Welcome to the Dashboard');
