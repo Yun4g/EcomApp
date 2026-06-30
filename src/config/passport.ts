@@ -11,7 +11,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            callbackURL: "/api/google/callback",
+            callbackURL: process.env.GOOGLE_CALLBACK_URL,
         },
         async (_accessToken, _refreshToken, profile: Profile, done) => {
             if (!profile.emails?.[0]?.value) {
@@ -21,8 +21,8 @@ passport.use(
             const email = profile.emails?.[0]?.value
 
             const checkExistingUser = await checkGoogleExistingUserRepo(email, profile.id)
-            if (!checkExistingUser) {
-                return done(null, false);
+            if (checkExistingUser) {
+                return done(null, checkExistingUser);
             }
 
             const CreateNewUser = await GoogleCreateUserRepo(profile.displayName, email, profile.id)
