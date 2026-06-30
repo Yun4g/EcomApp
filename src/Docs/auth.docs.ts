@@ -44,7 +44,7 @@
 
 /**
  * @swagger
- * /auth/signUp:
+ * /api/signUp:
  *   post:
  *     summary: Register a new user
  *     tags: [Auth]
@@ -74,7 +74,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
+ *               $ref: '#/components/schemas/apiResponse'
  *       400:
  *         description: Name, email, and password are required
  *         content:
@@ -87,7 +87,7 @@
 
 /**
  * @swagger
- * /auth/login:
+ * /api/login:
  *   post:
  *     summary: Login with email and password
  *     tags: [Auth]
@@ -141,7 +141,7 @@
 
 /**
  * @swagger
- * /auth/forgot-password:
+ * /api/forgot-password:
  *   post:
  *     summary: Send password reset link to email
  *     tags: [Auth]
@@ -183,7 +183,7 @@
 
 /**
  * @swagger
- * /auth/reset-password/{token}:
+ * /api/reset-password/{token}:
  *   post:
  *     summary: Reset user password using token
  *     tags: [Auth]
@@ -231,7 +231,7 @@
 
 /**
  * @swagger
- * /auth/refresh-token:
+ * /api/refresh-token:
  *   post:
  *     summary: Generate new access token using refresh token
  *     tags: [Auth]
@@ -266,7 +266,7 @@
 
 /**
  * @swagger
- * /auth/me:
+ * /api/me:
  *   get:
  *     summary: Get currently authenticated user
  *     tags: [Auth]
@@ -290,7 +290,7 @@
 
 /**
  * @swagger
- * /auth/google:
+ * /api/google:
  *   get:
  *     summary: Initiate Google OAuth login
  *     tags: [Auth]
@@ -302,7 +302,7 @@
 
 /**
  * @swagger
- * /auth/google/callback:
+ * /api/google/callback:
  *   get:
  *     summary: Google OAuth callback
  *     tags: [Auth]
@@ -314,7 +314,7 @@
 
 /**
  * @swagger
- * /auth/logout:
+ * /api/logout:
  *   post:
  *     summary: Logout current user
  *     tags: [Auth]

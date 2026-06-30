@@ -6,4 +6,4 @@ const route = Router();
 
 route.post('/payments', orderController);
 route.post('/webhook/paystack', paymentWebHook);
-export default route;
+export default route; 

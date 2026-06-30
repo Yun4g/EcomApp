@@ -113,7 +113,7 @@
 
 /**
  * @swagger
- * /order/payments:
+ * /api/payments:
  *   post:
  *     summary: Initialize a payment and place an order
  *     tags: [Orders]
@@ -124,7 +124,7 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/OrderRequest'
+ *             $ref: '#/components/schemas/apiRequest'
  *           example:
  *             productId: "prod_123"
  *             quantity: 2
@@ -141,7 +141,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/OrderResponse'
+ *               $ref: '#/components/schemas/apiResponse'
  *             example:
  *               message: Order placed successfully
  *               reference: "7PVGX8MEk85tgeEpVDtD"
@@ -170,7 +170,7 @@
 
 /**
  * @swagger
- * /order/webhook/paystack:
+ * /api/webhook/paystack:
  *   post:
  *     summary: Paystack webhook handler
  *     tags: [Orders]
