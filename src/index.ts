@@ -88,6 +88,14 @@ server.get('/', async (req, res) => {
   return res.send('Welcome to the server');
 });
 
+server.get('/dashboard', AuthMiddleware, async (req, res) => {
+    res.status(200).json({ message: 'Welcome to the dashboard' });
+})
+
+server.get('/health', async (req, res) => {
+  return res.status(200).json({ message: 'Server is healthy' });
+});
+
 server.get('/reset-password/:id', async (req, res) => {
   return res.send('Reset password');
 });

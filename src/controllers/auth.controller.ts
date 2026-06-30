@@ -197,8 +197,7 @@ export const GoogleController = async (req: Request, res: Response) => {
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.redirect("https://uniplug.vercel.app/dashboard")
-
+    res.redirect("https://dtechecomapp.onrender.com/dashboard")
   } catch (error) {
     if (error instanceof ApiError) {
       res.status(error.statusCode).json({ error: error.message });
